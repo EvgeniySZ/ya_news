@@ -4,6 +4,12 @@ from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+from http import HTTPStatus
+
+from django.test import TestCase
+# Импортируем функцию reverse().
+from django.urls import reverse
+
 from news.views import *
 from news.forms import *
 
@@ -22,6 +28,16 @@ class MyLiveServerTestCase(LiveServerTestCase):
         cls.server.shutdown()
         super().tearDownClass()
 
+
+class TestRoutes(TestCase):
+
+    def test_home_page(self):
+        # Вместо прямого указания адреса 
+        # получаем его при помощи функции reverse().
+        url = reverse('news:home')
+        response = self.client.get(url)
+        # Проверяем, что код ответа равен статусу OK (он же 200).
+        self.assertEqual(response.status_code, HTTPStatus.OK) 
 
 class BaseTestViews(unittest.TestCase):
     fixtures = ['news.json']
