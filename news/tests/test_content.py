@@ -111,3 +111,4 @@ class TestDetailPage(TestCase):
         sorted_timestamps = sorted(all_timestamps)
         # Проверяем, что временные метки отсортированы правильно.
         self.assertEqual(all_timestamps, sorted_timestamps)
+
