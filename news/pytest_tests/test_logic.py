@@ -31,7 +31,8 @@ class TestCommentCreation(TestCase):
         response = self.auth_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, f'{self.url}#comments')
         self.assertEqual(Comment.objects.count(), 1)
-        comment = Comment.objects.last()  # Get the last comment
+
+        comment = Comment.objects.last()
         self.assertEqual(comment.text, self.COMMENT_TEXT)
         self.assertEqual(comment.news, self.news)
         self.assertEqual(comment.author, self.user)
