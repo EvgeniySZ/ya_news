@@ -24,7 +24,7 @@ class TestCommentCreation(TestCase):
 
     def test_anonymous_user_cant_create_comment(self):
         initial_count = Comment.objects.count()
-        self.client.post(self.url, data=self.form_data)
+        response = self.client.post(self.url, data=self.form_data)
         self.assertEqual(Comment.objects.count(), initial_count)
 
     def test_user_can_create_comment(self):
@@ -39,14 +39,11 @@ class TestCommentCreation(TestCase):
 
     def test_user_cant_use_bad_words(self):
         bad_words_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
+        initial_count = Comment.objects.count()
         response = self.auth_client.post(self.url, data=bad_words_data)
-        self.assertFormError(
-            response,
-            form='form',
-            field='text',
-            errors=WARNING
-        )
-        self.assertEqual(Comment.objects.count(), 0)
+        self.assertFormError(response, form='form',
+                             field='text', errors=WARNING)
+        self.assertEqual(Comment.objects.count(), initial_count)
 
 
 class TestCommentEditDelete(TestCase):
@@ -65,18 +62,16 @@ class TestCommentEditDelete(TestCase):
         cls.reader_client = Client()
         cls.reader_client.force_login(cls.reader)
         cls.comment = Comment.objects.create(
-            news=cls.news,
-            author=cls.author,
-            text=cls.COMMENT_TEXT
-        )
+            news=cls.news, author=cls.author, text=cls.COMMENT_TEXT)
         cls.edit_url = reverse('news:edit', args=(cls.comment.id,))
         cls.delete_url = reverse('news:delete', args=(cls.comment.id,))
         cls.form_data = {'text': cls.NEW_COMMENT_TEXT}
 
     def test_author_can_delete_comment(self):
+        initial_count = Comment.objects.count()
         response = self.author_client.delete(self.delete_url)
         self.assertRedirects(response, self.url_to_comments)
-        self.assertEqual(Comment.objects.count(), 0)
+        self.assertEqual(Comment.objects.count(), initial_count - 1)
 
     def test_user_cant_delete_comment_of_another_user(self):
         initial_count = Comment.objects.count()
